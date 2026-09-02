@@ -1,0 +1,39 @@
+name: pilot-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Basic repo check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: README exists and is non-empty
+        run: |
+          test -s README.md
+          echo "OK: README.md present ($(wc -c < README.md) bytes)"
+
+      - name: Validate workflow YAML
+        run: |
+          python3 -c "import sys,yaml,glob; [yaml.safe_load(open(f)) for f in glob.glob('.github/workflows/*.yml')]; print('OK: workflow YAML parses')"
+
+      - name: No obvious secrets committed
+        run: |
+          if grep -rInE '(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{36}|AKIA[0-9A-Z]{16})' \
+               --exclude-dir=.git . ; then
+            echo "FAIL: possible secret found"; exit 1
+          fi
+          echo "OK: no secret patterns found"
+
+      - name: Done
+        run: echo "pilot-check passed"
