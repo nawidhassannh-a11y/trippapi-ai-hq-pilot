@@ -2,6 +2,8 @@
 
 **AI HQ Pilot: v1**
 
+Dual-model Claude + Codex pilot completed.
+
 Pilot repository for the AI HQ agent integration. Used to validate the
 GitHub App permission model end-to-end before touching any production repo.
 
